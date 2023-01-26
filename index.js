@@ -7,10 +7,14 @@ const sqlite3 = require('sqlite3').verbose();
 // npm install
 // npm start
 // http://localhost:3000/
+// table name: songs
 
 
+// An example of how to connect to the database and retrieve data
+// Jordan database path: ../../../Downloads/track_metadata.db
+// Annie database path: ../sqlite-tools-win32-x86-3400100/track_metadata.db
 app.get('/database', (req, res) => {
-    const db = new sqlite3.Database('../../../Downloads/track_metadata.db', (err) => {
+    const db = new sqlite3.Database('../sqlite-tools-win32-x86-3400100/track_metadata.db', (err) => {
         if (err) {
             console.log(err.message)
         }
@@ -18,9 +22,10 @@ app.get('/database', (req, res) => {
     });
 
     db.serialize(() => {
-        db.all("SELECT title, artist_name FROM songs WHERE length(cast(title AS BLOB)) AND title='Thriller'", callback=(err, row) => {
+      // "SELECT title, artist_name FROM songs WHERE length(cast(title AS BLOB)) AND title='Thriller'"
+        db.all("SELECT artist_name FROM songs LIMIT 5", callback=(err, row) => {
             if (err) {
-                console.error(err.message);
+                console.error(err.message); 
               }
             res.json(row)
         });
@@ -38,7 +43,7 @@ app.get('/artist', (req, res) => {
     res.send('Lists every artist')
   })
 
-// here :artistId is a variable
+// :artistId is a variable
 // params: only contains any parameters passed to the route
 app.get('/artist/id/:artistId', (req, res) => {
     res.send('List every song where artist is ' + req.params.artistId)
