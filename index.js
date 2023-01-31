@@ -11,8 +11,6 @@ const sqlite3 = require('sqlite3').verbose();
 
 
 // An example of how to connect to the database and retrieve data
-// Jordan database path: ../../../Downloads/track_metadata.db
-// Annie database path: ../sqlite-tools-win32-x86-3400100/track_metadata.db
 app.get('/dataset', (req, res) => {
     const db = new sqlite3.Database('../sqlite-tools-win32-x86-3400100/MillionSongDataset.sql', (err) => {
         if (err) {
@@ -35,6 +33,7 @@ app.get('/dataset', (req, res) => {
 })
 
 
+// get random ten songs after filtering
 app.get('/random', (req, res) => {
   const db = new sqlite3.Database('../sqlite-tools-win32-x86-3400100/MillionSongDataset.sql', (err) => {
       if (err) {
@@ -51,24 +50,29 @@ app.get('/random', (req, res) => {
 
       if (Object.keys(req.query).length > 0) {
         var attributes = Object.keys(req.query);
-        console.log(attributes)
+
         for (let i = 0; i < attributes.length; i++) {
-          if (i == 0) {
-            sql += " WHERE " + attributes[i] + " = '" + req.query[attributes[i]] + "' "
-          } else {
-            // tempo (low, high)
-            if (attributes[i] == 'tempo_low' & attributes[i+1] == 'tempo_high') {
-              sql += " AND tempo BETWEEN " + req.query[attributes[i]] + " AND '" + req.query[attributes[i+1]] + "' "
-              i++;
-            }else{
-            sql += " AND " + attributes[i] + " = '" + req.query[attributes[i]] + "' "
+          if (i == 0) {sql += " WHERE "
+          } else {        
+            sql += " AND " 
             }
+                   
+          // special cases: tempo (low, high), duration (low, high), loudness (low, high)
+          if (attributes[i] == 'tempo_low' & attributes[i+1] == 'tempo_high') {
+            sql += " tempo BETWEEN " + req.query[attributes[i]] + " AND '" + req.query[attributes[i+1]] + "' "
+            i++;
+          }else if(attributes[i] == 'duration_low' & attributes[i+1] == 'duration_high') {
+            sql += " duration BETWEEN " + req.query[attributes[i]] + " AND '" + req.query[attributes[i+1]] + "' "
+            i++;
           }
+          else if(attributes[i] == 'loudness_low' & attributes[i+1] == 'loudness_high') {
+            sql += " loudness BETWEEN " + req.query[attributes[i]] + " AND '" + req.query[attributes[i+1]] + "' "
+            i++;
+          }
+          else{ 
+            sql += attributes[i] + " = '" + req.query[attributes[i]] + "' "
+          }   
           
-          // add attributes[i] + " = '" + req.query[attributes[i]] + "' "
-          
-
-
         }
       }
 
