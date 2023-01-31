@@ -49,26 +49,29 @@ app.get('/random', (req, res) => {
       // if (req.query.key) {
       let sql = "SELECT * FROM songs";
 
-
       if (Object.keys(req.query).length > 0) {
-
         var attributes = Object.keys(req.query);
+        console.log(attributes)
         for (let i = 0; i < attributes.length; i++) {
           if (i == 0) {
             sql += " WHERE " + attributes[i] + " = '" + req.query[attributes[i]] + "' "
           } else {
+            // tempo (low, high)
+            if (attributes[i] == 'tempo_low' & attributes[i+1] == 'tempo_high') {
+              sql += " AND tempo BETWEEN " + req.query[attributes[i]] + " AND '" + req.query[attributes[i+1]] + "' "
+              i++;
+            }else{
             sql += " AND " + attributes[i] + " = '" + req.query[attributes[i]] + "' "
+            }
           }
-        }
+          
+          // add attributes[i] + " = '" + req.query[attributes[i]] + "' "
+          
 
-      //   if (req.query.key) {
-      //     sql += " WHERE key = '" + req.query.key + "' "
-      //   }
-      //   if (req.query.mode) {
-      //     sql += " AND mode = '" + req.query.mode + "' "
-      //   }
-      // }
+
+        }
       }
+
       sql += " ORDER BY RANDOM() LIMIT 10;"
       db.all(sql, callback=(err, row) => {
           if (err) {
@@ -76,10 +79,10 @@ app.get('/random', (req, res) => {
             }
           res.json(row)
       });
-  });
-
+      
   db.close();
   // res.send('a')
+  })
 })
 
 app.get('/', (req, res) => {
