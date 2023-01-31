@@ -13,8 +13,8 @@ const sqlite3 = require('sqlite3').verbose();
 // An example of how to connect to the database and retrieve data
 // Jordan database path: ../../../Downloads/track_metadata.db
 // Annie database path: ../sqlite-tools-win32-x86-3400100/track_metadata.db
-app.get('/database', (req, res) => {
-    const db = new sqlite3.Database('../sqlite-tools-win32-x86-3400100/track_metadata.db', (err) => {
+app.get('/dataset', (req, res) => {
+    const db = new sqlite3.Database('../sqlite-tools-win32-x86-3400100/MillionSongDataset.sql', (err) => {
         if (err) {
             console.log(err.message)
         }
@@ -22,8 +22,7 @@ app.get('/database', (req, res) => {
     });
 
     db.serialize(() => {
-      // "SELECT title, artist_name FROM songs WHERE length(cast(title AS BLOB)) AND title='Thriller'"
-        db.all("SELECT artist_name FROM songs LIMIT 5", callback=(err, row) => {
+        db.all("SELECT * FROM songs ORDER BY RANDOM() LIMIT 10", callback=(err, row) => {
             if (err) {
                 console.error(err.message); 
               }
@@ -33,6 +32,54 @@ app.get('/database', (req, res) => {
 
     db.close();
     // res.send('a')
+})
+
+
+app.get('/random', (req, res) => {
+  const db = new sqlite3.Database('../sqlite-tools-win32-x86-3400100/MillionSongDataset.sql', (err) => {
+      if (err) {
+          console.log(err.message)
+      }
+      console.log('connected')
+  });
+
+  db.serialize(() => {
+    // "SELECT * FROM songs WHERE key = '" + key + "' ORDER BY RANDOM() LIMIT 10 "
+      // Object.keys(req.query).length
+      // if (req.query.key) {
+      let sql = "SELECT * FROM songs";
+
+
+      if (Object.keys(req.query).length > 0) {
+
+        var attributes = Object.keys(req.query);
+        for (let i = 0; i < attributes.length; i++) {
+          if (i == 0) {
+            sql += " WHERE " + attributes[i] + " = '" + req.query[attributes[i]] + "' "
+          } else {
+            sql += " AND " + attributes[i] + " = '" + req.query[attributes[i]] + "' "
+          }
+        }
+
+      //   if (req.query.key) {
+      //     sql += " WHERE key = '" + req.query.key + "' "
+      //   }
+      //   if (req.query.mode) {
+      //     sql += " AND mode = '" + req.query.mode + "' "
+      //   }
+      // }
+      }
+      sql += " ORDER BY RANDOM() LIMIT 10;"
+      db.all(sql, callback=(err, row) => {
+          if (err) {
+              console.error(err.message); 
+            }
+          res.json(row)
+      });
+  });
+
+  db.close();
+  // res.send('a')
 })
 
 app.get('/', (req, res) => {
