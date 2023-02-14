@@ -58,14 +58,14 @@ app.get('/random', (req, res) => {
             }
                    
           // special cases: tempo (low, high), duration (low, high), loudness (low, high)
-          if (attributes[i] == 'tempo_low' & attributes[i+1] == 'tempo_high') {
+          if (attributes[i] == 'tempo_low' && attributes[i+1] == 'tempo_high') {
             sql += " tempo BETWEEN " + req.query[attributes[i]] + " AND '" + req.query[attributes[i+1]] + "' "
             i++;
-          }else if(attributes[i] == 'duration_low' & attributes[i+1] == 'duration_high') {
+          }else if(attributes[i] == 'duration_low' && attributes[i+1] == 'duration_high') {
             sql += " duration BETWEEN " + req.query[attributes[i]] + " AND '" + req.query[attributes[i+1]] + "' "
             i++;
           }
-          else if(attributes[i] == 'loudness_low' & attributes[i+1] == 'loudness_high') {
+          else if(attributes[i] == 'loudness_low' && attributes[i+1] == 'loudness_high') {
             sql += " loudness BETWEEN " + req.query[attributes[i]] + " AND '" + req.query[attributes[i+1]] + "' "
             i++;
           }
