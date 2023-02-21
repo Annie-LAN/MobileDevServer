@@ -187,7 +187,7 @@ app.get('/random', (req, res) => {
 
       }
 
-      sql += " ORDER BY RANDOM() LIMIT 10;"
+      sql += " ORDER BY RANDOM() LIMIT 100;"
       db.all(sql, callback=(err, row) => {
           if (err) {
               console.error(err.message); 
@@ -221,8 +221,32 @@ app.get('/artist/search', (req, res) => {
     res.send('List every song where artist is ' + req.query.artist + ' and bpm is > ' + req.query.bpm)
 })
 
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
 module.exports = app
+
+
+// select all possible distinct values
+app.get('/distinct', (req, res) => {
+    const db = new sqlite3.Database('../sqlite-tools-win32-x86-3400100/MillionSongDataset.sql', (err) => {
+        if (err) {
+            console.log(err.message)
+        }
+        console.log('connected')
+    });
+
+    db.serialize(() => {
+        db.all("SELECT DISTINCT key FROM songs", callback=(err, row) => {
+            if (err) {
+                console.error(err.message); 
+              }
+            res.json(row)
+        });
+    });
+
+    db.close();
+    // res.send('a')
+})
