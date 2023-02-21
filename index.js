@@ -91,13 +91,6 @@ app.get('/random', (req, res) => {
           sql += " AND time_signature = '" + req.query.time_signature + "'";
         } 
 
-        // year
-        if (req.query.year && added_anything == false) {
-          sql += " WHERE year = '" + req.query.year + "'";
-          added_anything = true;          
-        } else if (req.query.year && added_anything == true) {
-          sql += " AND year = '" + req.query.year + "'";
-        } 
 
         // release
         if (req.query.release && added_anything == false) {
@@ -132,6 +125,31 @@ app.get('/random', (req, res) => {
           added_anything = true;
         }
         
+        // year
+        // year_low exists
+        if (req.query.year_low && added_anything == false) {
+          if (req.query.year_high) {
+            sql += " WHERE year BETWEEN '" + req.query.year_low + "' AND '" + req.query.year_high + "'";
+            added_anything = true;
+          } else {
+          sql += " WHERE year >= '" + req.query.year_low + "'";
+          added_anything = true;          
+          }
+        } else if (req.query.year_low && added_anything == true) {
+          if (req.query.year_high) {
+            sql += " AND year BETWEEN '" + req.query.year_low + "' AND '" + req.query.year_high + "'";
+          } else {
+          sql += " AND year >= '" + req.query.year_low + "'";
+          }
+        } // year_low doesn't exist
+        else if (req.query.year_high && added_anything == false) {
+          sql += " WHERE year <= '" + req.query.year_high + "'";
+          added_anything = true;          
+        } else if (req.query.year_high && added_anything == true) {
+          sql += " AND year <= '" + req.query.year_high + "'";
+          added_anything = true;
+        }
+
 
         // duration
         // duration_low exists
@@ -187,7 +205,7 @@ app.get('/random', (req, res) => {
 
       }
 
-      sql += " ORDER BY RANDOM() LIMIT 100;"
+      sql += " ORDER BY RANDOM() LIMIT 10;"
       db.all(sql, callback=(err, row) => {
           if (err) {
               console.error(err.message); 
@@ -239,7 +257,7 @@ app.get('/distinct', (req, res) => {
     });
 
     db.serialize(() => {
-        db.all("SELECT DISTINCT key FROM songs", callback=(err, row) => {
+        db.all("SELECT DISTINCT title FROM songs", callback=(err, row) => {
             if (err) {
                 console.error(err.message); 
               }
